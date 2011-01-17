@@ -170,7 +170,7 @@ function changeText(t1,t2,t3){
 <%@ include file = "tile.inc"%>
 </TD><TD><CENTER><input type="radio" name="corner" onClick="changeText(5);" ></CENTER></TD></TR>
 <TR><TD></TD><TD><CENTER>
-<input type="radio" name="corner" onClick="changeText(3,8,6);">
+<input type="radio" name="corner" onClick="changeText(3,6,8);">
 </CENTER></TD><TD>
 <%id=6;%>
 <%@ include file = "tile.inc"%>
@@ -250,7 +250,7 @@ function changeText(t1,t2,t3){
 <%id=17;%>
 <%@ include file = "tile.inc"%>
 </TD><TD><CENTER>
-<input type="radio" name="corner" onClick="changeText(17,15);">
+<input type="radio" name="corner" onClick="changeText(15,17);">
 </CENTER></TD><TD></TD></TR>
 <TR><TD></TD><TD>
 <CENTER>

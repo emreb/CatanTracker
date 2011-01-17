@@ -16,61 +16,119 @@ function changeText(t1,t2,t3){
    Robber r = b.getRobber(); 
     if (request.getParameter("Settlement") != null &&
         request.getParameter("Settlement").equals("InitPlaceIt")) {
-        
-        Player p = b.getPlayer(new Integer(request.getParameter("Player")));    
-        Tile[] tiles = new Tile[3];
-        for (int i=1; i<=3;i++) {
-            try{
-            tiles[i-1] = b.getTile(new Integer(request.getParameter("TILE"+i)));
-            } catch (Exception e) {}
-        }
-        p.placeSettlement(tiles);
-        
+        try {
+	        Player p = b.getPlayer(new Integer(request.getParameter("Player")));    
+	        Tile[] tiles = new Tile[3];
+	        for (int i=1; i<=3;i++) {
+	           try{
+	           tiles[i-1] = b.getTile(new Integer(request.getParameter("TILE"+i)));
+	           } catch (Exception e) {}
+	        }
+	        
+	        p.placeSettlement(tiles); 
+        } catch (Exception e) {
+        %>Error placing settlement!<%}
     }
     
     if (request.getParameter("buyBuilding") != null &&
         request.getParameter("buyBuilding").equals("PlaceIt")) {
-        
-        Player p = b.getPlayer(new Integer(request.getParameter("Player")));    
-        Tile[] tiles = new Tile[3];
-        for (int i=1; i<=3;i++) {
-            try{
-            tiles[i-1] = b.getTile(new Integer(request.getParameter("TILE"+i)));
-            } catch (Exception e) {}
-        }
-        if (request.getParameter("buyType") != null) {
-            if (request.getParameter("buyType").equals("Settlement")) {
-                p.buySettlement(tiles);
-            }
-            if (request.getParameter("buyType").equals("City")) {
-                Settlement s = p.getSettlement(tiles);
-                p.upgradeToCity(s);            
-            }
-        
-        
-        }
+        try {
+	        Player p = b.getPlayer(new Integer(request.getParameter("Player")));    
+	        Tile[] tiles = new Tile[3];
+	        for (int i=1; i<=3;i++) {
+	            try{
+	            tiles[i-1] = b.getTile(new Integer(request.getParameter("TILE"+i)));
+	            } catch (Exception e) {}
+	        }
+	        if (request.getParameter("buyType") != null) {
+	            if (request.getParameter("buyType").equals("Settlement")) {
+	                p.buySettlement(tiles);
+	            }
+	            if (request.getParameter("buyType").equals("City")) {
+	                Settlement s = p.getSettlement(tiles);
+	                p.upgradeToCity(s);            
+	            }
+	        
+	        
+	        }
+        } catch (Exception e) {
+        %>Error buying building!<%}
         
     }
     
     if (request.getParameter("Dice") != null &&
         request.getParameter("Dice").equals("Roll")) {
-        Dice.roll(new Integer(request.getParameter("Roll")));   
+        try {
+        Dice.roll(new Integer(request.getParameter("Roll")));
+        } catch (Exception e ) {
+        %>Empty roll!<%
+        }   
     }
 
     if (request.getParameter("Buy") != null) {
-        if (request.getParameter("Buy").equals("Road")) {
-            Player p = b.getPlayer(new Integer(request.getParameter("Player")));
-            p.buyRoad();
+        try {
+	        if (request.getParameter("Buy").equals("Road")) {
+	            Player p = b.getPlayer(new Integer(request.getParameter("Player")));
+	            p.buyRoad();
+	        }
+	        if (request.getParameter("Buy").equals("DevelopmentCard")) {
+	            Player p = b.getPlayer(new Integer(request.getParameter("Player")));
+	            p.buyDevelopmentCard();
+	        }
+	    } catch (Exception e) {
+	    %>Error in buying<%}    
+    }
+    
+    if (request.getParameter("Trade") != null &&
+        request.getParameter("Trade").equals("ExecuteTrade")) {
+        
+        Player p1 = b.getPlayer(new Integer(request.getParameter("Player1")));
+        Player p2 = null;  
+        if (!request.getParameter("Player2").equals("4")) {
+            p2 = b.getPlayer(new Integer(request.getParameter("Player2")));
         }
-        if (request.getParameter("Buy").equals("DevelopmentCard")) {
-            Player p = b.getPlayer(new Integer(request.getParameter("Player")));
-            p.buyDevelopmentCard();
-        }   
+        
+        CardCollection p1Cards = new CardCollection();
+        for (int i=1; i<5; i++) {
+            String resource = null;
+            if (request.getParameter("Player1Resource"+i) != null &&
+                !request.getParameter("Player1Resource"+i).equals("")) {
+                resource = request.getParameter("Player1Resource"+i);
+                Card c = new Card(new Integer(resource));
+                p1Cards.add(c); 
+            }
+        }
+        
+        CardCollection p2Cards = new CardCollection();
+        for (int i=1; i<5; i++) {
+            String resource = null;
+            if (request.getParameter("Player2Resource"+i) != null &&
+                !request.getParameter("Player2Resource"+i).equals("")) {
+                resource = request.getParameter("Player2Resource"+i);
+                Card c = new Card(new Integer(resource));
+                p2Cards.add(c); 
+            }
+        }
+        
+        if (p2 == null) {
+        // Trading with bank
+            Trade.withBank(p1, p1Cards, p2Cards);
+        } else {
+            Trade.execute(p1, p1Cards, p2, p2Cards);
+        }
+        
+    }
+    
+    if (request.getParameter("MoveRobber") != null &&
+        request.getParameter("MoveRobber").equals("MoveRobber")) {
+        
+        r.moveRobber(b.getTile(new Integer(request.getParameter("Robber"))));   
+        
     }
     
     int id =0;
 %>
-<FORM METHOD=GET> 
+
 <TABLE BORDER="1">
 <TR><TD></TD><TD></TD><TD></TD><TD>
 <CENTER><input type="radio" name="corner" onClick="changeText(0);"></CENTER>
@@ -212,10 +270,9 @@ function changeText(t1,t2,t3){
 <CENTER><input type="radio" name="corner" onClick="changeText(18);"></CENTER>
 </TD><TD></TD><TD></TD><TD></TD></TR>
 </TABLE>
-<INPUT TYPE=SUBMIT NAME=Save VALUE=Save>
-</FORM>
+
 <HR>
-<FORM>
+<FORM METHOD=POST>
 Roll: 
 <input type="radio" name="Roll" value="2">2,
 <input type="radio" name="Roll" value="3">3,
@@ -232,7 +289,7 @@ Roll:
 </FORM>
 <HR>
 
-<FORM>
+<FORM METHOD=POST>
 <input type="radio" name="Player" value="0">P0,
 <input type="radio" name="Player" value="1">P1,
 <input type="radio" name="Player" value="2">P2,
@@ -250,13 +307,84 @@ buys
 </FORM>
 
 <HR>
-<FORM>
+<FORM METHOD=POST>
 <input type="radio" name="Player" value="0">P0,
 <input type="radio" name="Player" value="1">P1,
 <input type="radio" name="Player" value="2">P2,
 <input type="radio" name="Player" value="3">P3  buys
 <INPUT TYPE=SUBMIT NAME=Buy VALUE=Road>
 <INPUT TYPE=SUBMIT NAME=Buy VALUE=DevelopmentCard>
+</FORM>
+<HR>
+<FORM>
+<input type="radio" name="Player1" value="0">P0,
+<input type="radio" name="Player1" value="1">P1,
+<input type="radio" name="Player1" value="2">P2,
+<input type="radio" name="Player1" value="3">P3 trades
+<SELECT NAME=Player1Resource1>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player1Resource2>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player1Resource3>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player1Resource4>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT> with
+<BR>
+<input type="radio" name="Player2" value="0">P0,
+<input type="radio" name="Player2" value="1">P1,
+<input type="radio" name="Player2" value="2">P2,
+<input type="radio" name="Player2" value="3">P3
+<input type="radio" name="Player2" value="4">Bank 
+<SELECT NAME=Player2Resource1>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player2Resource2>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player2Resource3>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<SELECT NAME=Player2Resource4>
+<option value="">----</option>
+<% for (int i=1; i < 6; i++) {%>
+  <option value="<%=i%>"><%=(new Card(i)).getTypeName()%></option>
+  <%}%>
+</SELECT>
+<INPUT TYPE=SUBMIT NAME=Trade VALUE="ExecuteTrade">
+</FORM>
+<HR>
+<FORM METHOD=POST>
+<SELECT NAME=Robber>
+<% for (int i=0;i<19;i++) {%>
+<OPTION VALUE="<%=i%>"><%=i%></OPTION>
+<%}%>
+<INPUT TYPE=SUBMIT NAME=MoveRobber VALUE="MoveRobber">
+</SELECT>
 </FORM>
 <HR>
 <%  for (int pi=0; pi<4; pi++) {

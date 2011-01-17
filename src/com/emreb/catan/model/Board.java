@@ -11,7 +11,7 @@ public class Board {
     tiles = new Tile[19];
     players = new Player[4];
     for (int i = 0; i < 4; i++) {
-      players[i] = new Player(""+i, this);
+      players[i] = new Player(""+i);
     }
   }
   public static Board getInstance(){

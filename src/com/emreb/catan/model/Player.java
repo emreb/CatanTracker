@@ -10,32 +10,19 @@ import com.emreb.catan.model.buildings.Road;
 import com.emreb.catan.model.buildings.Settlement;
 
 public class Player {
-  private Board  board;
   private String name = "";
   private CardCollection cards = new CardCollection();
   private LinkedList<Building> buildings = new LinkedList<Building>();
+  private int placementCount = 0;
 
-  public Player(String name, Board b) {
+  public Player(String name) {
     this.name = name;
-    board = b;
   }
 
   public String getName(){
     return name;
   }
-
-//  public void printCards() {
-//    for (int i : cards.getCardTypes()) {
-//      Card c = new Card(i);
-//      System.out.println(name + ":" + c.getTypeName() + ":" + cards.getCount(c));
-//    }
-//
-//    System.out.println("--------");
-//  }
-  private void playerLosesToRobber(CardCollection c) {
-    cards.remove(c);
-  }
-
+  
   public CardCollection getCards() {
     return cards;
   }
@@ -63,6 +50,14 @@ public class Player {
   public void placeSettlement(Tile ...tiles) {
     Settlement s = new Settlement(this);
     buy(s, true, tiles);
+    placementCount++;
+    if (placementCount == 2) {
+      // You get the cards for these tiles for free
+      for (Tile t : tiles) {
+        Card c = new Card(t.getProduces());
+        cards.add(c);
+      }
+    }
   }
   public void upgradeToCity(Settlement s) {
     City c = new City(this);

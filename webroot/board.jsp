@@ -316,7 +316,7 @@ buys
 <INPUT TYPE=SUBMIT NAME=Buy VALUE=DevelopmentCard>
 </FORM>
 <HR>
-<FORM>
+<FORM METHOD=POST>
 <input type="radio" name="Player1" value="0">P0,
 <input type="radio" name="Player1" value="1">P1,
 <input type="radio" name="Player1" value="2">P2,
